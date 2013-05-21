@@ -1,0 +1,82 @@
+<!-- sample leaflet clustering map --!>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <script src='http://api.tiles.mapbox.com/mapbox.js/v1.0.2/mapbox.js'></script>
+  <link href='http://api.tiles.mapbox.com/mapbox.js/v1.0.2/mapbox.css' rel='stylesheet' />
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <!--[if lte IE 8]>
+    <link href='http://api.tiles.mapbox.com/mapbox.js/v1.0.2/mapbox.ie.css' rel='stylesheet' >
+  <![endif]-->
+  <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+
+  </style>
+</head>
+<body>
+
+<div id="content">
+	<div id='branding'></div>
+      <div id="about">
+        <h1>John Snow's Map</h1>
+        <p>London cholera outbreak, 1854</p>
+        <p><a href="http://www.jrpepperconsulting.com" target="blank">JrPepper Consulting</a></p>
+
+        <!-- Geocoder -->
+        <div data-control="geocode" id="search">
+          <form class="geocode">
+            <input placeholder="Search for an address" type="text">
+            <input type="submit" />
+            <div id="geocode-error"></div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+
+<!--
+  Include Leaflet.markercluster's CSS and JavaScript assets.
+  Unlike mapbox.js, these are not hosted by MapBox; you will
+  need to download and host them yourself.
+
+  Note that the 0.2 release of Leaflet.markercluster is not
+  compatible with the version of Leaflet used by mapbox.js.
+  This example uses assets from the master branch (@ 6fda9a206)
+  of https://github.com/Leaflet/Leaflet.markercluster.
+-->
+	<link rel="stylesheet" href="../dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="../dist/MarkerCluster.Default.css" />
+<!--[if lte IE 8]>
+  <link rel="stylesheet" href="/mapbox.js/assets/MarkerCluster.Default.ie.css" />
+<![endif]-->
+<script src="../dist/leaflet.markercluster-src.js"></script>
+
+<!-- Example data. -->
+<script src="CholeraDeaths.js"></script>
+
+<div id='map'></div>
+
+<script type='text/javascript'>
+    var map = L.mapbox.map('map', 'examples.map-d40qac29')
+        .setView([51.512,-0.13678], 16);
+
+    var markers = new L.MarkerClusterGroup();
+
+    for (var i = 0; i < addressPoints.length; i++) {
+        var a = addressPoints[i];
+        var title = "Number of deaths: " + a[2];
+        var marker = L.marker(new L.LatLng(a[0], a[1]), {
+            icon: L.mapbox.marker.icon({'marker-symbol': 'cemetery', 'marker-color': '981b1e'}),
+            title: title
+        });
+        marker.bindPopup(title);
+        markers.addLayer(marker);
+    }
+
+    map.addLayer(markers);
+</script>
+</body>
+</html>

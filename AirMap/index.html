@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'/>
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<script src='http://underscorejs.org/underscore-min.js'></script>
+<script src='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.js'></script>
+<link href='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.css' rel='stylesheet' />
+<style>
+body {
+  margin:0px;
+  padding:0px;
+  font:normal 15px/20px Arial,sans-serif;
+  background:#fff;
+  }
+
+article {
+  width:33.3333%;
+  min-width:320px;
+  position:relative;
+  padding-top:40px;
+  padding-bottom:33.3333%;
+  }
+section {
+  padding:40px;
+  margin-left:40px;
+  position:relative;
+  transition:background 500ms, color 500ms;
+  -moz-transition:background 500ms, color 500ms;
+  -webkit-transition:background 500ms, color 500ms;
+  }
+section,
+section a {
+  color:#888;
+  color:rgba(128,128,128,0);
+  text-decoration:none;
+  text-shadow:rgba(64,64,64,1) 0px 0px 4px;
+  }
+section.active {
+  background:#222;
+  color:#eee;
+  }
+section.active a { color:#eee; }
+section.active small { color:#aaa; }
+h1 { font-size:2em; line-height:1em; }
+h2 { font-size:1.3333em; }
+h1,h2 { margin:0px 0px 10px; }
+p { margin:0px; }
+
+.scroll {
+  position:absolute;
+  right:0px; bottom:0px;
+  font-size:10px;
+  text-transform:uppercase;
+  padding:5px 10px;
+  }
+.colophon {
+  display:block;
+  margin-top:10px;
+  }
+
+.cover:before {
+  content:'';
+  display:block;
+  width:120px; height:120px;
+  margin:0px auto 20px;
+  }
+.cover.active:before { background:url(sprite.png) 0px -120px no-repeat; }
+
+#pane {
+  position:fixed;
+  top:0px;
+  bottom:0px;
+  right:0px;
+  width:66.6666%;
+  }
+#map  {
+  position:absolute;
+  top:0px;
+  bottom:0px;
+  width:200%;
+  left:-50%;
+  transition:opacity 250ms;
+  -moz-transition:opacity 250ms;
+  -webkit-transition:opacity 250ms;
+  }
+
+.spot {
+  width:120px;
+  height:120px;
+  margin:-60px 0px 0px -60px;
+  background:url(sprite.png) 120px 120px no-repeat;
+  position:absolute;
+  }
+.spot-cover { display:none; }
+.spot-bakersfield { background-position:-130px 0px; opacity:0.5;}
+.spot-bakersfield.active { background-position:-130px -120px; opacity:.9}
+.spot-visalia { background-position:-260px 0px; opacity:0.5;}
+.spot-visalia.active { background-position:-260px -120px; opacity:.9}
+.spot-los-angeles { background-position:-390px 0px; opacity:0.5;}
+.spot-los-angeles.active { background-position:-390px -120px; opacity:.9}
+.spot-phoenix { background-position:-520px 0px; opacity:0.5;}
+.spot-phoenix.active { background-position:-520px -120px; opacity:.9}
+.spot-hanford { background-position:-650px 0px; opacity:0.5;}
+.spot-hanford.active { background-position:-650px -120px; opacity:.9}
+.spot-fresno { background-position:-780px 0px; opacity:0.5;}
+.spot-fresno.active { background-position:-780px -120px; opacity:.9}
+.spot-pittsburgh { background-position:-910px 0px; opacity:0.5;}
+.spot-pittsburgh.active { background-position:-910px -120px; opacity:.9}
+.spot-birmingham { background-position:-1040px 0px; opacity:0.5;}
+.spot-birmingham.active { background-position:-1040px -120px; opacity:.9}
+.spot-cincinnati { background-position:-1040px 0px; opacity:0.5;}
+.spot-cincinnati.active { background-position:-1040px -120px; opacity:.9}
+
+/* Distinguish the "cover page" visually other sections. */
+body.section-0 #map { opacity:0.5; }
+body.bakersfield-0 #map { opacity:0.5; }
+
+@media (max-width:640px) {
+  body {
+    font-size:12px;
+    line-height:16px;
+    }
+  article {
+    width:100%;
+    min-width:100%;
+    padding-top:0px;
+    padding-bottom:200%;
+    }
+  section {
+    text-shadow:none;
+    margin-left:0px;
+    padding:30px;
+    }
+  section.active {
+    position:fixed;
+    top:0px; left:0px; right:0px;
+    }
+  #pane { width:100%; }
+  #map  {
+    bottom:0%;
+    left:0%;
+    width:100%;
+    height:150%;
+    }
+  }
+
+@media (min-width:1280px) {
+  body {
+    font-size:18px;
+    line-height:24px;
+    }
+  }
+</style>
+</head>
+<body class='section-0'>
+
+<div id='pane'><div id='map'></div></div>
+
+<article>
+  <section id='cover' class='cover active'>
+    <h1>Mapping Air Quality</h1>
+    <p><em>by Josh Pepper</em></p>
+    <p>Here's a first draft of a map showing cities in the US with the worst air pollution. Check back soon for more features added to the map including descriptions of the towns, why they are affected with air pollution, and background maps showing PM 2.5, PM 10 and ozone.</p><br>
+    <small class='scroll'>Scroll ▼</small>
+  </section>
+  <section id='bakersfield'>
+    <h2>Bakersfield, CA</h2>
+    <p>Population: 807,407</p>
+  </section>
+  <section id='visalia'>
+    <h2>Visalia, CA</h2>
+    <p>Population: 429,668</p>
+  </section>
+  <section id='los-angeles'>
+    <h2>Greater Los Angeles Area, CA</h2>
+    <p>Population: 16.37 million</p>
+  </section>
+  <section id='phoenix'>
+    <h2>Phoenix, AZ</h2>
+    <p>Population: 4,364,094</p>
+  </section>
+  <section id='hanford'>
+    <h2>Hanford, CA</h2>
+    <p>Population: 148,764</p>
+  </section>
+  <section id='fresno'>
+    <h2>Fresno, CA</h2>
+    <p>Population: 1,063,899</p>
+  </section>
+  <section id='pittsburgh'>
+    <h2>Pittsburgh</h2>
+    <p>Population: 2,445,117</p>
+  </section>
+  <section id='birmingham'>
+    <h2>Birmingham, Ala.</h2>
+    <p>Population: 1,212,848</p>
+  </section>
+  <section id='cincinnati'>
+    <h2>Cincinnati, OH</h2>
+    <p>Population: 2,214,954</p>
+    <small class='colophon'>
+      Data from <a href='http://www.stateoftheair.org/2011/city-rankings/most-polluted-cities.html'>American Lung Association: State of the Air</a><br/>
+
+    </small>
+  </section>
+</article>
+
+<script>
+var geojson = [
+  { "geometry": { "type": "Point", "coordinates": [-98.7372, 40.4230] },
+    "properties": { "id": "cover", "zoom": 4 } },
+  { "geometry": { "type": "Point", "coordinates": [-119.0178, 35.3733] },
+    "properties": { "id": "bakersfield", "zoom": 9  } },
+  { "geometry": { "type": "Point", "coordinates": [-119.2911, 36.3303] },
+    "properties": { "id": "visalia", "zoom": 8  } },
+  { "geometry": { "type": "Point", "coordinates": [-118.2428, 34.0522] },
+    "properties": { "id": "los-angeles", "zoom": 7  } },
+  { "geometry": { "type": "Point", "coordinates": [-112.02,  33.43] },
+    "properties": { "id": "phoenix", "zoom": 7 } },
+  { "geometry": { "type": "Point", "coordinates": [-119.6447, 36.3275] },
+    "properties": { "id": "hanford", "zoom": 9 } },
+  { "geometry": { "type": "Point", "coordinates": [-119.7714, 36.7478] },
+    "properties": { "id": "fresno", "zoom": 8 } },
+  { "geometry": { "type": "Point", "coordinates": [-79.9961, 40.4406] },
+    "properties": { "id": "pittsburgh", "zoom": 7 } },
+  { "geometry": { "type": "Point", "coordinates": [-86.8025, 33.5206] },
+    "properties": { "id": "birmingham", "zoom": 7 } },
+  { "geometry": { "type": "Point", "coordinates": [-84.4569, 39.1619] },
+    "properties": { "id": "cincinnati", "zoom": 7 } }
+];
+var tiles = mapbox.layer().tilejson({
+  tiles: [ "http://a.tiles.mapbox.com/v3/examples.map-liczq28b/{z}/{x}/{y}.png" ]
+});
+var spots = mapbox.markers.layer()
+  // Load up markers from geojson data.
+  .features(geojson)
+  // Define a new factory function. Takes geojson input and returns a
+  // DOM element that represents the point.
+  .factory(function(f) {
+    var el = document.createElement('div');
+    el.className = 'spot spot-' + f.properties.id;
+    return el;
+  });
+
+// Creates the map with tile and marker layers and
+// no input handlers (mouse drag, scrollwheel, etc).
+var map = mapbox.map('map', [tiles, spots], null, []);
+
+// Array of story section elements.
+var sections = document.getElementsByTagName('section');
+
+// Array of marker elements with order matching section elements.
+var markers = _(sections).map(function(section) {
+  return _(spots.markers()).find(function(m) {
+    return m.data.properties.id === section.id;
+  });
+});
+
+// Helper to set the active section.
+var setActive = function(index, ease) {
+  // Set active class on sections, markers.
+  _(sections).each(function(s) { s.className = s.className.replace(' active', '') });
+  _(markers).each(function(m) { m.element.className = m.element.className.replace(' active', '') });
+  sections[index].className += ' active';
+  markers[index].element.className += ' active';
+
+  // Set a body class for the active section.
+  document.body.className = 'section-' + index;
+
+  // Ease map to active marker.
+  if (!ease) {
+    map.centerzoom(markers[index].location, markers[index].data.properties.zoom||14);
+  } else {
+    map.ease.location(markers[index].location).zoom(markers[index].data.properties.zoom||14).optimal(0.5, 1.00);
+  }
+
+  return true;
+};
+
+// Bind to scroll events to find the active section.
+window.onscroll = _(function() {
+  // IE 8
+  if (window.pageYOffset === undefined) {
+    var y = document.documentElement.scrollTop;
+    var h = document.documentElement.clientHeight;
+  } else {
+    var y = window.pageYOffset;
+    var h = window.innerHeight;
+  }
+
+  // If scrolled to the very top of the page set the first section active.
+  if (y === 0) return setActive(0, true);
+
+  // Otherwise, conditionally determine the extent to which page must be
+  // scrolled for each section. The first section that matches the current
+  // scroll position wins and exits the loop early.
+  var memo = 0;
+  var buffer = (h * 0.3333);
+  var active = _(sections).any(function(el, index) {
+    memo += el.offsetHeight;
+    return y < (memo-buffer) ? setActive(index, true) : false;
+  });
+
+  // If no section was set active the user has scrolled past the last section.
+  // Set the last section active.
+  if (!active) setActive(sections.length - 1, true);
+}).debounce(10);
+
+// Set map to first section.
+setActive(0, false);
+</script>
+
+</body>
+</html>
